@@ -7,7 +7,7 @@ This file creates your application.
 from sqlalchemy import and_
 
 from app import app, db
-from flask import render_template, request, redirect, url_for, flash, Response, session, g
+from flask import render_template, request, redirect, url_for, flash, Response, session
 from app.forms import UserForm, CheckinForm
 from app.models import User, Check_in
 import datetime # import sqlite3
@@ -28,9 +28,9 @@ def login():
 
 
         if username =='admin' and password == 'password':
-            session['user_id'] = 1
+            session['user_id'] = '_islogin'
 
-            return redirect(url_for('home'))
+            return redirect(url_for('show_checkin'))
 
         return redirect(url_for('login'))
 
@@ -40,17 +40,11 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('login'))
-@app.route('/')
-def home():
-    """Render website's home page."""
-    if (len(session) == 1):
-        return render_template('home.html')
-    else :
-        return redirect(url_for('login'))
 
 @app.route('/users')
 def show_users():
-    if (len(session) == 1):
+    print('SESSION SHOW USER ', session)
+    if (len(session) != 0):
         users = db.session.query(User).all()
         return render_template('show_users.html', users=users)
     else :
@@ -59,7 +53,9 @@ def show_users():
 
 @app.route('/add-user', methods=['POST', 'GET'])
 def add_user():
-    if (len(session) == 1):
+    print('SESSION ADD USER ', session)
+
+    if (len(session) != 0):
         user_form = UserForm()
 
         if request.method == 'POST':
@@ -82,7 +78,7 @@ def add_user():
 
 @app.route('/remove/checkin/<int:id>', methods=['DELETE', 'POST', 'GET'])
 def remove_checkin(id):
-    if (len(session) == 1):
+    if (len(session) != 0):
 
         db.session.query(Check_in).filter_by(id=id).delete()
         db.session.commit()
@@ -93,7 +89,7 @@ def remove_checkin(id):
 
 @app.route('/remove/user/<int:id>', methods=['DELETE', 'POST', 'GET'])
 def remove_user(id):
-    if (len(session) == 1):
+    if (len(session) != 0):
 
         db.session.query(User).filter_by(id=id).delete()
         db.session.commit()
@@ -105,7 +101,9 @@ def remove_user(id):
 @app.route('/checkin', methods=['POST', 'GET'])
 
 def checkin():
-    if (len(session) == 1):
+    print('SESSION ADD CHECKIN ', session)
+
+    if (len(session) != 0):
 
         checkin = CheckinForm()
         if request.method == 'POST':
@@ -132,10 +130,12 @@ def checkin():
 
 @app.route('/showcheckin')
 def show_checkin():
-    if (len(session) == 1):
+    print('SESSION SHOW CHECKIN ', session)
+
+    if (len(session) != 0):
 
         checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).filter_by(id_nv= User.id).all()
-        # checkin = db.session.query(Date_time).all()
+
         return render_template('show_checkin.html', users=checkin)
     else :
         return redirect(url_for('login'))
