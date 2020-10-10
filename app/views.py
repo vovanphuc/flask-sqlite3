@@ -7,7 +7,7 @@ This file creates your application.
 from sqlalchemy import and_
 
 from app import app, db
-from flask import render_template, request, redirect, url_for, flash, Response
+from flask import render_template, request, redirect, url_for, flash, Response, session, g
 from app.forms import UserForm, CheckinForm
 from app.models import User, Check_in
 import datetime # import sqlite3
@@ -17,85 +17,128 @@ import io
 # Routing for your application.
 ###
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        session.clear()
+        session.pop('user_id', None)
+
+        username = request.form['username']
+        password = request.form['password']
+
+
+        if username =='admin' and password == 'password':
+            session['user_id'] = 1
+
+            return redirect(url_for('home'))
+
+        return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 @app.route('/')
 def home():
     """Render website's home page."""
-    return render_template('home.html')
-
+    if (len(session) == 1):
+        return render_template('home.html')
+    else :
+        return redirect(url_for('login'))
 
 @app.route('/users')
 def show_users():
-    users = db.session.query(User).all()
-    return render_template('show_users.html', users=users)
-
+    if (len(session) == 1):
+        users = db.session.query(User).all()
+        return render_template('show_users.html', users=users)
+    else :
+        return redirect(url_for('login'))
 
 
 @app.route('/add-user', methods=['POST', 'GET'])
 def add_user():
-    user_form = UserForm()
+    if (len(session) == 1):
+        user_form = UserForm()
 
-    if request.method == 'POST':
-        if user_form.validate_on_submit():
-            # Get validated data from form
-            name = user_form.name.data # You could also have used request.form['name']
+        if request.method == 'POST':
+            if user_form.validate_on_submit():
+                # Get validated data from form
+                name = user_form.name.data # You could also have used request.form['name']
 
-            # save user to database
-            user = User(name)
-            db.session.add(user)
-            db.session.commit()
+                # save user to database
+                user = User(name)
+                db.session.add(user)
+                db.session.commit()
 
-            flash('User successfully added')
-            return redirect(url_for('show_users'))
+                flash('User successfully added')
+                return redirect(url_for('show_users'))
 
-    flash_errors(user_form)
-    return render_template('add_user.html', form=user_form)
+        flash_errors(user_form)
+        return render_template('add_user.html', form=user_form)
+    else :
+        return redirect(url_for('login'))
 
 @app.route('/remove/checkin/<int:id>', methods=['DELETE', 'POST', 'GET'])
 def remove_checkin(id):
-    db.session.query(Check_in).filter_by(id=id).delete()
-    db.session.commit()
-    flash('Checkin successfully removed')
-    return redirect(url_for('show_checkin'))
+    if (len(session) == 1):
+
+        db.session.query(Check_in).filter_by(id=id).delete()
+        db.session.commit()
+        flash('Checkin successfully removed')
+        return redirect(url_for('show_checkin'))
+    else :
+        return redirect(url_for('login'))
 
 @app.route('/remove/user/<int:id>', methods=['DELETE', 'POST', 'GET'])
 def remove_user(id):
-    db.session.query(User).filter_by(id=id).delete()
-    db.session.commit()
-    flash('User successfully removed')
-    return redirect(url_for('show_users'))
+    if (len(session) == 1):
+
+        db.session.query(User).filter_by(id=id).delete()
+        db.session.commit()
+        flash('User successfully removed')
+        return redirect(url_for('show_users'))
+    else :
+        return redirect(url_for('login'))
 
 @app.route('/checkin', methods=['POST', 'GET'])
 
 def checkin():
-    checkin = CheckinForm()
+    if (len(session) == 1):
 
-    if request.method == 'POST':
-        if checkin.validate_on_submit():
-            id_nv = checkin.id_nv.data
-            status = checkin.status.data
-            date = str(datetime.datetime.now())[:10]
-            time = str(datetime.datetime.now())[10:19]
+        checkin = CheckinForm()
+        if request.method == 'POST':
+            if checkin.validate_on_submit():
+                id_nv = checkin.id_nv.data
+                status = checkin.status.data
+                date = str(datetime.datetime.now())[:10]
+                time = str(datetime.datetime.now())[10:19]
 
-            check = db.session.query(Check_in).filter(and_(Check_in.id_nv==id_nv, Check_in.date==date)).all()
-            # print(len(check))
-            if(len(check)==0):
-                checkin = Check_in(id_nv, status, date, time)
-                db.session.add(checkin)
-                db.session.commit()
-                flash('User successfully added')
+                check = db.session.query(Check_in).filter(and_(Check_in.id_nv==id_nv, Check_in.date==date)).all()
+                # print(len(check))
+                if(len(check)==0):
+                    checkin = Check_in(id_nv, status, date, time)
+                    db.session.add(checkin)
+                    db.session.commit()
+                    flash('User successfully added')
 
-            return redirect(url_for('show_checkin'))
+                return redirect(url_for('show_checkin'))
 
-    flash_errors(checkin)
-    return render_template('checkin.html', form=checkin)
+        flash_errors(checkin)
+        return render_template('checkin.html', form=checkin)
+    else :
+        return redirect(url_for('login'))
 
-# Flash errors from the form if validation fails
 @app.route('/showcheckin')
 def show_checkin():
+    if (len(session) == 1):
 
-    checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).filter_by(id_nv= User.id).all()
-    # checkin = db.session.query(Date_time).all()
-    return render_template('show_checkin.html', users=checkin)
+        checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).filter_by(id_nv= User.id).all()
+        # checkin = db.session.query(Date_time).all()
+        return render_template('show_checkin.html', users=checkin)
+    else :
+        return redirect(url_for('login'))
 
 def flash_errors(form):
     for field, errors in form.errors.items():
