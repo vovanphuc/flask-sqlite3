@@ -36,7 +36,16 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/')
+def index():
+    if (len(session) != 0):
+        return redirect(url_for('show_checkin'))
+
+    else:
+        return redirect(url_for('login'))
+
 @app.route('/logout')
+
 def logout():
     session.clear()
     return redirect(url_for('login'))
@@ -128,15 +137,33 @@ def checkin():
     else :
         return redirect(url_for('login'))
 
-@app.route('/showcheckin')
+@app.route('/showcheckin', methods=['POST', 'GET'])
 def show_checkin():
     print('SESSION SHOW CHECKIN ', session)
 
     if (len(session) != 0):
 
-        checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).filter_by(id_nv= User.id).all()
+        checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).filter(and_(Check_in.id_nv== User.id)).all()
 
+        if request.method == 'POST':
+            name_search = request.form['name_search']
+            date_search = request.form['date_search']
+            if name_search == '' and date_search != '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                           User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date==date_search)).all()
+            if date_search == '' and name_search != '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                           User.name).filter(and_(Check_in.id_nv == User.id, User.name==name_search)).all()
+            if name_search == '' and date_search == '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                           User.name).filter(and_(Check_in.id_nv == User.id)).all()
+            if date_search != '' and name_search != '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                           User.name).filter(and_(Check_in.id_nv == User.id,Check_in.date==date_search, User.name == name_search)).all()
+
+            return render_template('show_checkin.html', users=checkin)
         return render_template('show_checkin.html', users=checkin)
+
     else :
         return redirect(url_for('login'))
 
@@ -154,7 +181,7 @@ def live():
 
 
 def gen():
-    cap = cv2.VideoCapture('rtsp://admin:Artintlab123@10.10.46.69/8000')
+    cap = cv2.VideoCapture('rtsp://admin:Artintlab123@192.168.1.69/8000')
 
     while True:
         ret, frame = cap.read()
@@ -179,7 +206,6 @@ def gen():
 def video_feed():
     return Response(gen(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 if __name__ == '__main__':
     app.run(debug=True,host="0.0.0.0",port="8080")

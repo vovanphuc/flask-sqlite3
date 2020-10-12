@@ -28,6 +28,16 @@
   </thead>
 
   <tbody>
+  <tr>
+    <form method="POST">
+    <td></td>
+    <td><input class="input" type="text" name="name_search" placeholder="Name"></td>
+    <td></td>
+    <td><input class="input" type="text" name="date_search" placeholder="YYYY-MM-DD"></td>
+    <td></td>
+    <td><button type="submit" class="btn btn-primary">Search</button></td>
+    </form>
+  </tr>
   {% for i in range(users| length) %}
     <tr>
       <th scope="row">{{ i+1 }}</th>
