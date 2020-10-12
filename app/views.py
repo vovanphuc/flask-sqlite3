@@ -148,19 +148,30 @@ def show_checkin():
         if request.method == 'POST':
             name_search = request.form['name_search']
             date_search = request.form['date_search']
-            if name_search == '' and date_search != '':
+            search = "%{}%".format(date_search)
+
+            if len(date_search) == 7 and name_search != '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                       User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date.like(search), User.name == name_search)).all()
+            if len(date_search) == 7 and name_search == '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                       User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date.like(search))).all()
+
+            if name_search == '' and len(date_search) == 10:
                 checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
                                            User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date==date_search)).all()
+
             if date_search == '' and name_search != '':
                 checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
                                            User.name).filter(and_(Check_in.id_nv == User.id, User.name==name_search)).all()
+
             if name_search == '' and date_search == '':
                 checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
                                            User.name).filter(and_(Check_in.id_nv == User.id)).all()
-            if date_search != '' and name_search != '':
-                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
-                                           User.name).filter(and_(Check_in.id_nv == User.id,Check_in.date==date_search, User.name == name_search)).all()
 
+            if len(date_search) == 10 and name_search != '':
+                checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
+                                           User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date==date_search, User.name == name_search)).all()
             return render_template('show_checkin.html', users=checkin)
         return render_template('show_checkin.html', users=checkin)
 

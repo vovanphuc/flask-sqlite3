@@ -21,10 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="18ed3de4-a149-453f-a576-607645856324" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mydatabase.db" beforeDir="false" afterPath="$PROJECT_DIR$/app/mydatabase.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/show_checkin.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/show_checkin.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/demo.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,10 +87,18 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="671" y="354" width="635" height="396" key="#com.intellij.fileTypes.FileTypeChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1601348311446" />
+    <state x="242" y="117" width="1482" height="872" key="DiffContextDialog" timestamp="1602487164398">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="242" y="117" width="1482" height="872" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1602487164398" />
     <state x="771" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1602300101427">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="771" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1602300101427" />
+    <state x="775" y="255" width="426" height="595" key="RollbackChangesDialog" timestamp="1602487168930">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="775" y="255" width="426" height="595" key="RollbackChangesDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1602487168930" />
     <state x="482" y="187" key="SettingsEditor" timestamp="1602300088341">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
