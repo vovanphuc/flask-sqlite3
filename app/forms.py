@@ -3,6 +3,7 @@ from wtforms import StringField, BooleanField
 from wtforms.validators import InputRequired, DataRequired
 
 class UserForm(FlaskForm):
+    id = StringField('id', validators=[InputRequired()])
     name = StringField('Name', validators=[InputRequired()])
 
 class CheckinForm(FlaskForm):

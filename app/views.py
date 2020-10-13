@@ -52,7 +52,6 @@ def logout():
 
 @app.route('/users')
 def show_users():
-    print('SESSION SHOW USER ', session)
     if (len(session) != 0):
         users = db.session.query(User).all()
         return render_template('show_users.html', users=users)
@@ -62,7 +61,6 @@ def show_users():
 
 @app.route('/add-user', methods=['POST', 'GET'])
 def add_user():
-    print('SESSION ADD USER ', session)
 
     if (len(session) != 0):
         user_form = UserForm()
@@ -70,10 +68,12 @@ def add_user():
         if request.method == 'POST':
             if user_form.validate_on_submit():
                 # Get validated data from form
+                id = str(user_form.id.data)
                 name = user_form.name.data # You could also have used request.form['name']
 
+                print(id, name)
                 # save user to database
-                user = User(name)
+                user = User(id, name)
                 db.session.add(user)
                 db.session.commit()
 
@@ -110,7 +110,6 @@ def remove_user(id):
 @app.route('/checkin', methods=['POST', 'GET'])
 
 def checkin():
-    print('SESSION ADD CHECKIN ', session)
 
     if (len(session) != 0):
 
@@ -143,7 +142,8 @@ def show_checkin():
 
     if (len(session) != 0):
 
-        checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).filter(and_(Check_in.id_nv== User.id)).all()
+        checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date,Check_in.time, User.name).\
+                    filter(and_(Check_in.id_nv== User.id)).all()
 
         if request.method == 'POST':
             name_search = request.form['name_search']
@@ -152,7 +152,8 @@ def show_checkin():
 
             if len(date_search) == 7 and name_search != '':
                 checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
-                                       User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date.like(search), User.name == name_search)).all()
+                                       User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date.like(search),
+                                                              User.name == name_search)).all()
             if len(date_search) == 7 and name_search == '':
                 checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
                                        User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date.like(search))).all()
@@ -171,7 +172,8 @@ def show_checkin():
 
             if len(date_search) == 10 and name_search != '':
                 checkin = db.session.query(Check_in.id, Check_in.id_nv, Check_in.status, Check_in.date, Check_in.time,
-                                           User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date==date_search, User.name == name_search)).all()
+                                           User.name).filter(and_(Check_in.id_nv == User.id, Check_in.date==date_search,
+                                                                  User.name == name_search)).all()
             return render_template('show_checkin.html', users=checkin)
         return render_template('show_checkin.html', users=checkin)
 
@@ -190,9 +192,8 @@ def flash_errors(form):
 def live():
     return render_template('live.html')
 
-
 def gen():
-    cap = cv2.VideoCapture('rtsp://admin:Artintlab123@192.168.1.69/8000')
+    cap = cv2.VideoCapture(0)
 
     while True:
         ret, frame = cap.read()
@@ -204,14 +205,6 @@ def gen():
         cv2.imwrite('demo.jpg', frame)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + open('demo.jpg', 'rb').read() + b'\r\n')
-
-    # while True:
-    #     read_return_code, frame = cap.read()
-    #     encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
-    #     io_buf = io.BytesIO(image_buffer)
-    #     yield (b'--frame\r\n'
-    #            b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
-
 
 @app.route('/video_feed')
 def video_feed():
